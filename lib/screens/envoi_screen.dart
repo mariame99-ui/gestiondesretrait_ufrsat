@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class EnvoiScreen extends StatefulWidget {
   const EnvoiScreen({super.key});
@@ -12,8 +13,8 @@ class _EnvoiArgentScreenState extends State<EnvoiScreen> {
   final TextEditingController _destinataireController = TextEditingController();
 
   void _envoyerArgent() {
-    final montantText = _montantController.text;
-    final destinataire = _destinataireController.text;
+    final montantText = _montantController.text.trim();
+    final destinataire = _destinataireController.text.trim();
 
     if (montantText.isEmpty || destinataire.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -22,7 +23,7 @@ class _EnvoiArgentScreenState extends State<EnvoiScreen> {
       return;
     }
 
-    double? montant = double.tryParse(montantText);
+    int? montant = int.tryParse(montantText);
     if (montant == null || montant <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Montant invalide")),
@@ -30,17 +31,43 @@ class _EnvoiArgentScreenState extends State<EnvoiScreen> {
       return;
     }
 
-    // Ici tu peux appeler ton API ou service de paiement
+    if (destinataire == FakeDatabase.utilisateurActuel) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vous ne pouvez pas vous envoyer de l'argent")),
+      );
+      return;
+    }
+
+    if (!FakeDatabase.soldes.containsKey(destinataire)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Destinataire introuvable")),
+      );
+      return;
+    }
+
+    if (FakeDatabase.getSolde() < montant) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Solde insuffisant")),
+      );
+      return;
+    }
+
+    // 🔹 Mise à jour de la base de données
+    FakeDatabase.envoyer(montant, destinataire);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Vous avez envoyé $montant € à $destinataire")),
+      SnackBar(content: Text("Vous avez envoyé $montant FCFA à $destinataire")),
     );
 
+    // Réinitialisation des champs
     _montantController.clear();
     _destinataireController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    final solde = FakeDatabase.getSolde();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Envoyer de l'argent"),
@@ -50,10 +77,19 @@ class _EnvoiArgentScreenState extends State<EnvoiScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            Text(
+              "Solde actuel : $solde FCFA",
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              ),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: _destinataireController,
               decoration: InputDecoration(
-                labelText: "Destinataire (email ou numéro)",
+                labelText: "Destinataire (email)",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -64,7 +100,7 @@ class _EnvoiArgentScreenState extends State<EnvoiScreen> {
               controller: _montantController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: "Montant (€)",
+                labelText: "Montant (FCFA)",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

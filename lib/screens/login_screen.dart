@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,18 +15,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      // Afficher un message de succès
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Connexion réussie ✅"),
-          backgroundColor: Colors.green,
-        ),
-      );
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
 
-      // 🔹 Redirection vers le Dashboard après 0,5 s
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      });
+      // 🔹 Vérification avec FakeDatabase
+      bool success = FakeDatabase.login(email, password);
+
+      if (success) {
+        // Message de succès
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Connexion réussie ✅"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Redirection vers le dashboard après 0,5 s
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        });
+      } else {
+        // Message d’erreur si login échoue
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Email ou mot de passe incorrect ❌"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -90,8 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (value == null || value.isEmpty) {
                     return "Veuillez entrer votre mot de passe";
                   }
-                  if (value.length < 6) {
-                    return "Le mot de passe doit contenir au moins 6 caractères";
+                  if (value.length < 4) { // correspond aux mots de passe FakeDatabase
+                    return "Le mot de passe doit contenir au moins 4 caractères";
                   }
                   return null;
                 },
@@ -115,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 25),
 
-              // 🔹 Lien vers l’inscription
+              // 🔹 Lien vers l’inscription (optionnel)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

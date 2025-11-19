@@ -32,25 +32,7 @@ class DashboardScreen extends StatelessWidget {
                 );
               },
             ),
-            _buildMenuCard(
-              icon: Icons.money,
-              label: "Retrait",
-              onTap: () {
-                Navigator.push(context
-                  , MaterialPageRoute(builder:  (context)=>const RetraitScreen()),
-                );
-              },
-            ),
-            _buildMenuCard(
-              icon: Icons.send,
-              label: "Envoi",
-              onTap: () {
 
-                Navigator.push(context
-                  , MaterialPageRoute(builder:  (context)=>const EnvoiScreen()),
-                );
-              },
-            ),
             _buildMenuCard(
               icon: Icons.receipt_long,
               label: "Historique",

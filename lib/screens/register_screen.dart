@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,6 +16,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController matriculeController = TextEditingController();
   final TextEditingController birthDateController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   String? selectedPensionType;
 
@@ -24,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     'Invalidité',
   ];
 
-  // Sélecteur de date
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -44,6 +45,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      // Vérifier si l'email existe déjà
+      if (FakeDatabase.comptes.containsKey(email)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Email déjà utilisé ❌"),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Ajouter l'utilisateur dans FakeDatabase
+      FakeDatabase.comptes[email] = password;
+      FakeDatabase.soldes[email] = 0; // solde initial
+      FakeDatabase.historiques[email] = [];
+      FakeDatabase.reclamations[email] = [];
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Inscription réussie ✅"),
@@ -51,8 +72,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
 
-      // 🔹 Redirection vers le Dashboard après inscription réussie
+      // Redirection vers le dashboard
       Future.delayed(const Duration(milliseconds: 500), () {
+        FakeDatabase.utilisateurActuel = email;
         Navigator.pushReplacementNamed(context, '/dashboard');
       });
     }
@@ -78,7 +100,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 25),
-
               // Nom
               TextFormField(
                 controller: nomController,
@@ -91,7 +112,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 value!.isEmpty ? "Veuillez entrer votre nom" : null,
               ),
               const SizedBox(height: 15),
-
               // Prénom
               TextFormField(
                 controller: prenomController,
@@ -104,7 +124,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 value!.isEmpty ? "Veuillez entrer votre prénom" : null,
               ),
               const SizedBox(height: 15),
-
               // Matricule
               TextFormField(
                 controller: matriculeController,
@@ -117,7 +136,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 value!.isEmpty ? "Veuillez entrer votre matricule" : null,
               ),
               const SizedBox(height: 15),
-
               // Type de pension
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
@@ -135,7 +153,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 value == null ? "Veuillez choisir un type" : null,
               ),
               const SizedBox(height: 15),
-
               // Date de naissance
               TextFormField(
                 controller: birthDateController,
@@ -150,7 +167,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 value!.isEmpty ? "Veuillez choisir votre date" : null,
               ),
               const SizedBox(height: 15),
-
               // Email
               TextFormField(
                 controller: emailController,
@@ -170,8 +186,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 15),
+              // Mot de passe
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: "Mot de passe",
+                  prefixIcon: Icon(Icons.lock_outline),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Veuillez entrer un mot de passe";
+                  }
+                  if (value.length < 4) {
+                    return "Le mot de passe doit contenir au moins 4 caractères";
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 25),
-
               // Bouton inscription
               SizedBox(
                 width: double.infinity,
@@ -188,7 +223,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-
               // Lien vers la connexion
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

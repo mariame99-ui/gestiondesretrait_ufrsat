@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class RetraitScreen extends StatefulWidget {
   const RetraitScreen({super.key});
 
   @override
-  State<RetraitScreen> createState() => _RetraitArgentScreenState();
+  State<RetraitScreen> createState() => _RetraitScreenState();
 }
 
-class _RetraitArgentScreenState extends State<RetraitScreen> {
+class _RetraitScreenState extends State<RetraitScreen> {
   final TextEditingController _montantController = TextEditingController();
   final TextEditingController _compteController = TextEditingController();
 
   void _retirerArgent() {
     final montantText = _montantController.text;
-    final compte = _compteController.text;
+    final compte = _compteController.text.trim();
 
     if (montantText.isEmpty || compte.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -22,7 +23,7 @@ class _RetraitArgentScreenState extends State<RetraitScreen> {
       return;
     }
 
-    double? montant = double.tryParse(montantText);
+    int? montant = int.tryParse(montantText);
     if (montant == null || montant <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Montant invalide")),
@@ -30,13 +31,28 @@ class _RetraitArgentScreenState extends State<RetraitScreen> {
       return;
     }
 
-    // Ici tu peux appeler ton API ou service de retrait
+    if (FakeDatabase.getSolde() < montant) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Solde insuffisant")),
+      );
+      return;
+    }
+
+    // Retrait via FakeDatabase
+    FakeDatabase.retirerSolde(montant);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Vous avez retiré $montant € vers $compte")),
+      SnackBar(
+        content: Text("Vous avez retiré $montant FCFA vers $compte"),
+        backgroundColor: Colors.green,
+      ),
     );
 
     _montantController.clear();
     _compteController.clear();
+
+    // Retour à l'écran précédent pour rafraîchir le solde
+    Navigator.pop(context);
   }
 
   @override
@@ -64,7 +80,7 @@ class _RetraitArgentScreenState extends State<RetraitScreen> {
               controller: _montantController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: "Montant (€)",
+                labelText: "Montant (FCFA)",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -75,7 +91,8 @@ class _RetraitArgentScreenState extends State<RetraitScreen> {
               onPressed: _retirerArgent,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
               ),
               child: const Text(
                 "Retirer",

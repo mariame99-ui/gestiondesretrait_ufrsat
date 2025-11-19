@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class PaymentHistoryScreen extends StatelessWidget {
   const PaymentHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Exemple d’historique des paiements
-    final payments = [
-      {"date": "12 Janvier 2025", "montant": "50 000 FCFA"},
-      {"date": "12 Décembre 2024", "montant": "50 000 FCFA"},
-      {"date": "12 Novembre 2024", "montant": "50 000 FCFA"},
-    ];
+    // 🔹 Récupérer l'historique de l'utilisateur actuel
+    final userTransactions = FakeDatabase.getHistorique().reversed.toList();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Historique des paiements"),
-        backgroundColor: Colors.orange, // AppBar en orange
+        backgroundColor: Colors.orange,
       ),
-      body: ListView.builder(
+      body: userTransactions.isEmpty
+          ? const Center(
+        child: Text(
+          "Aucune transaction pour le moment.",
+          style: TextStyle(fontSize: 16),
+        ),
+      )
+          : ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: payments.length,
+        itemCount: userTransactions.length,
         itemBuilder: (context, index) {
-          final item = payments[index];
+          final tx = userTransactions[index];
+          final type = tx['type'] ?? 'Type inconnu';
+          final montant = tx['montant']?.toString() ?? '0';
+          final date = tx['date'] ?? '';
+
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.orange.shade200), // bordure orange
+              border: Border.all(color: Colors.orange.shade200),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -40,20 +48,22 @@ class PaymentHistoryScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  item["date"]!,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange, // texte date en orange
+                Expanded(
+                  child: Text(
+                    "$type\n$date",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.orange,
+                    ),
                   ),
                 ),
                 Text(
-                  item["montant"]!,
+                  "$montant FCFA",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange, // texte montant en orange
+                    color: Colors.orange,
                   ),
                 ),
               ],

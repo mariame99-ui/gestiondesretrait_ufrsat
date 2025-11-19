@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/fake_database.dart';
 
 class ReclamationScreen extends StatefulWidget {
   const ReclamationScreen({super.key});
@@ -9,9 +10,6 @@ class ReclamationScreen extends StatefulWidget {
 
 class _ReclamationScreenState extends State<ReclamationScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
 
@@ -38,35 +36,6 @@ class _ReclamationScreenState extends State<ReclamationScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Nom
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Nom",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                validator: (value) =>
-                value!.isEmpty ? "Veuillez entrer votre nom" : null,
-              ),
-              const SizedBox(height: 15),
-
-              // Email
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                validator: (value) => value!.contains("@")
-                    ? null
-                    : "Veuillez entrer un email valide",
-              ),
-              const SizedBox(height: 15),
 
               // Sujet
               TextFormField(
@@ -108,8 +77,8 @@ class _ReclamationScreenState extends State<ReclamationScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF004AAD),
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                   ),
                   child: const Text(
                     "Envoyer",
@@ -125,6 +94,12 @@ class _ReclamationScreenState extends State<ReclamationScreen> {
   }
 
   void _sendReclamation(BuildContext context) {
+    // Ajouter la réclamation dans FakeDatabase
+    FakeDatabase.ajouterReclamation(
+      subjectController.text.trim(),
+      messageController.text.trim(),
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         backgroundColor: Colors.green,
@@ -133,8 +108,6 @@ class _ReclamationScreenState extends State<ReclamationScreen> {
     );
 
     // Vide les champs après envoi
-    nameController.clear();
-    emailController.clear();
     subjectController.clear();
     messageController.clear();
   }
