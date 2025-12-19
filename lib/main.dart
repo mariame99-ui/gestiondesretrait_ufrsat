@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'config/router.dart';
+import 'firebase_options.dart'; // généré par FlutterFire CLI
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -21,7 +27,6 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-
       initialRoute: AppRouter.home,
       routes: AppRouter.routes,
     );

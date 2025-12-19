@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "366071209742",
+    "project_id": "gestionretraitufrsat",
+    "storage_bucket": "gestionretraitufrsat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366071209742:android:019cd8cd1adc4c0de0815f",
+        "android_client_info": {
+          "package_name": "com.example.gestiondesretrait_ufrsat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDrOpATgPbPTiYPBJiy5HrPRTEff7qs-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

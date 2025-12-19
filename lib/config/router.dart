@@ -6,7 +6,7 @@ import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/contact_screen.dart';
-import '../screens/services_screen.dart';
+import '../screens/services_screen.dart' hide ServicesScreen;
 import '../screens/payment_history_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/profil_screen.dart';
@@ -40,6 +40,8 @@ class AppRouter {
 
 
 
-    // ➕ Plus tard : chacun ajoute sa ligne ici
+    //Plus tard : chacun ajoute sa ligne ici
   };
+
+  static String? get dashboard => null;
 }
